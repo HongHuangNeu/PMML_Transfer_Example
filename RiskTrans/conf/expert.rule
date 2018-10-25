@@ -1,0 +1,5 @@
+#专家转移概率配置
+# invest = 0.6
+invest = 0.6
+officer = 0.9
+name = 0.3
