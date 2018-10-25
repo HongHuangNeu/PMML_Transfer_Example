@@ -1,0 +1,685 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PMML xmlns="http://www.dmg.org/PMML-4_3" xmlns:data="http://jpmml.org/jpmml-model/InlineTable" version="4.3">
+	<Header>
+		<Application name="JPMML-SkLearn" version="1.5.8"/>
+		<Timestamp>2018-10-24T12:16:17Z</Timestamp>
+	</Header>
+	<DataDictionary>
+		<DataField name="survived" optype="categorical" dataType="integer">
+			<Value value="0"/>
+			<Value value="1"/>
+		</DataField>
+		<DataField name="age" optype="continuous" dataType="double"/>
+		<DataField name="pclass" optype="categorical" dataType="string">
+			<Value value="1st"/>
+			<Value value="2nd"/>
+			<Value value="3rd"/>
+		</DataField>
+		<DataField name="sex" optype="categorical" dataType="string">
+			<Value value="female"/>
+			<Value value="male"/>
+		</DataField>
+	</DataDictionary>
+	<TransformationDictionary>
+		<DerivedField name="float(age)" optype="continuous" dataType="float">
+			<FieldRef field="age"/>
+		</DerivedField>
+		<DerivedField name="double(float(age))" optype="continuous" dataType="double">
+			<FieldRef field="float(age)"/>
+		</DerivedField>
+	</TransformationDictionary>
+	<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+		<MiningSchema>
+			<MiningField name="survived" usageType="target"/>
+			<MiningField name="pclass"/>
+			<MiningField name="sex"/>
+			<MiningField name="age"/>
+		</MiningSchema>
+		<Output>
+			<OutputField name="probability(0)" optype="continuous" dataType="double" feature="probability" value="0"/>
+			<OutputField name="probability(1)" optype="continuous" dataType="double" feature="probability" value="1"/>
+		</Output>
+		<Node>
+			<True/>
+			<Node>
+				<SimplePredicate field="sex" operator="equal" value="female"/>
+				<Node>
+					<SimplePredicate field="pclass" operator="equal" value="3rd"/>
+					<Node>
+						<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="38.5"/>
+						<Node>
+							<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="32.5"/>
+							<Node>
+								<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="30.597091674804688"/>
+								<Node>
+									<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="13.0"/>
+									<Node>
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="5.5"/>
+										<Node score="0" recordCount="1.0">
+											<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="3.5"/>
+											<ScoreDistribution value="0" recordCount="1.0"/>
+											<ScoreDistribution value="1" recordCount="0.0"/>
+										</Node>
+										<Node score="1" recordCount="1.0">
+											<True/>
+											<ScoreDistribution value="0" recordCount="0.0"/>
+											<ScoreDistribution value="1" recordCount="1.0"/>
+										</Node>
+									</Node>
+									<Node score="0" recordCount="5.0">
+										<True/>
+										<ScoreDistribution value="0" recordCount="5.0"/>
+										<ScoreDistribution value="1" recordCount="0.0"/>
+									</Node>
+								</Node>
+								<Node score="1" recordCount="4.0">
+									<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="16.5"/>
+									<ScoreDistribution value="0" recordCount="0.0"/>
+									<ScoreDistribution value="1" recordCount="4.0"/>
+								</Node>
+								<Node>
+									<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="21.5"/>
+									<Node>
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="19.0"/>
+										<Node score="0" recordCount="2.0">
+											<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="17.5"/>
+											<ScoreDistribution value="0" recordCount="1.0"/>
+											<ScoreDistribution value="1" recordCount="1.0"/>
+										</Node>
+										<Node score="0" recordCount="3.0">
+											<True/>
+											<ScoreDistribution value="0" recordCount="2.0"/>
+											<ScoreDistribution value="1" recordCount="1.0"/>
+										</Node>
+									</Node>
+									<Node score="0" recordCount="3.0">
+										<True/>
+										<ScoreDistribution value="0" recordCount="3.0"/>
+										<ScoreDistribution value="1" recordCount="0.0"/>
+									</Node>
+								</Node>
+								<Node score="1" recordCount="3.0">
+									<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="25.5"/>
+									<ScoreDistribution value="0" recordCount="0.0"/>
+									<ScoreDistribution value="1" recordCount="3.0"/>
+								</Node>
+								<Node score="0" recordCount="1.0">
+									<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="28.5"/>
+									<ScoreDistribution value="0" recordCount="1.0"/>
+									<ScoreDistribution value="1" recordCount="0.0"/>
+								</Node>
+								<Node score="1" recordCount="3.0">
+									<True/>
+									<ScoreDistribution value="0" recordCount="1.0"/>
+									<ScoreDistribution value="1" recordCount="2.0"/>
+								</Node>
+							</Node>
+							<Node score="0" recordCount="118.0">
+								<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="31.597091674804688"/>
+								<ScoreDistribution value="0" recordCount="79.0"/>
+								<ScoreDistribution value="1" recordCount="39.0"/>
+							</Node>
+							<Node score="0" recordCount="1.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="1.0"/>
+								<ScoreDistribution value="1" recordCount="0.0"/>
+							</Node>
+						</Node>
+						<Node score="1" recordCount="4.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="0.0"/>
+							<ScoreDistribution value="1" recordCount="4.0"/>
+						</Node>
+					</Node>
+					<Node score="0" recordCount="4.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="4.0"/>
+						<ScoreDistribution value="1" recordCount="0.0"/>
+					</Node>
+				</Node>
+				<Node>
+					<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="2.5"/>
+					<Node score="0" recordCount="1.0">
+						<SimplePredicate field="pclass" operator="equal" value="1st"/>
+						<ScoreDistribution value="0" recordCount="1.0"/>
+						<ScoreDistribution value="1" recordCount="0.0"/>
+					</Node>
+					<Node score="1" recordCount="2.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="0.0"/>
+						<ScoreDistribution value="1" recordCount="2.0"/>
+					</Node>
+				</Node>
+				<Node>
+					<SimplePredicate field="pclass" operator="equal" value="2nd"/>
+					<Node>
+						<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="53.5"/>
+						<Node score="1" recordCount="15.0">
+							<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="21.0"/>
+							<ScoreDistribution value="0" recordCount="0.0"/>
+							<ScoreDistribution value="1" recordCount="15.0"/>
+						</Node>
+						<Node score="0" recordCount="4.0">
+							<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="22.5"/>
+							<ScoreDistribution value="0" recordCount="2.0"/>
+							<ScoreDistribution value="1" recordCount="2.0"/>
+						</Node>
+						<Node>
+							<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="27.5"/>
+							<Node>
+								<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="26.5"/>
+								<Node score="1" recordCount="5.0">
+									<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="25.5"/>
+									<ScoreDistribution value="0" recordCount="0.0"/>
+									<ScoreDistribution value="1" recordCount="5.0"/>
+								</Node>
+								<Node score="1" recordCount="3.0">
+									<True/>
+									<ScoreDistribution value="0" recordCount="1.0"/>
+									<ScoreDistribution value="1" recordCount="2.0"/>
+								</Node>
+							</Node>
+							<Node score="0" recordCount="1.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="1.0"/>
+								<ScoreDistribution value="1" recordCount="0.0"/>
+							</Node>
+						</Node>
+						<Node>
+							<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="37.0"/>
+							<Node>
+								<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="31.597091674804688"/>
+								<Node score="1" recordCount="8.0">
+									<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="31.097091674804688"/>
+									<ScoreDistribution value="0" recordCount="0.0"/>
+									<ScoreDistribution value="1" recordCount="8.0"/>
+								</Node>
+								<Node score="1" recordCount="17.0">
+									<True/>
+									<ScoreDistribution value="0" recordCount="1.0"/>
+									<ScoreDistribution value="1" recordCount="16.0"/>
+								</Node>
+							</Node>
+							<Node score="1" recordCount="11.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="0.0"/>
+								<ScoreDistribution value="1" recordCount="11.0"/>
+							</Node>
+						</Node>
+						<Node score="0" recordCount="1.0">
+							<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="39.0"/>
+							<ScoreDistribution value="0" recordCount="1.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+						<Node>
+							<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="44.5"/>
+							<Node score="1" recordCount="4.0">
+								<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="43.0"/>
+								<ScoreDistribution value="0" recordCount="0.0"/>
+								<ScoreDistribution value="1" recordCount="4.0"/>
+							</Node>
+							<Node score="0" recordCount="1.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="1.0"/>
+								<ScoreDistribution value="1" recordCount="0.0"/>
+							</Node>
+						</Node>
+						<Node score="1" recordCount="5.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="0.0"/>
+							<ScoreDistribution value="1" recordCount="5.0"/>
+						</Node>
+					</Node>
+					<Node score="0" recordCount="1.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="1.0"/>
+						<ScoreDistribution value="1" recordCount="0.0"/>
+					</Node>
+				</Node>
+				<Node>
+					<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="37.5"/>
+					<Node>
+						<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="35.5"/>
+						<Node score="1" recordCount="22.0">
+							<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="24.5"/>
+							<ScoreDistribution value="0" recordCount="0.0"/>
+							<ScoreDistribution value="1" recordCount="22.0"/>
+						</Node>
+						<Node score="0" recordCount="1.0">
+							<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="25.5"/>
+							<ScoreDistribution value="0" recordCount="1.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+						<Node score="1" recordCount="9.0">
+							<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="31.097091674804688"/>
+							<ScoreDistribution value="0" recordCount="0.0"/>
+							<ScoreDistribution value="1" recordCount="9.0"/>
+						</Node>
+						<Node score="1" recordCount="27.0">
+							<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="32.09709167480469"/>
+							<ScoreDistribution value="0" recordCount="2.0"/>
+							<ScoreDistribution value="1" recordCount="25.0"/>
+						</Node>
+						<Node score="1" recordCount="3.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="0.0"/>
+							<ScoreDistribution value="1" recordCount="3.0"/>
+						</Node>
+					</Node>
+					<Node score="1" recordCount="4.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="1.0"/>
+						<ScoreDistribution value="1" recordCount="3.0"/>
+					</Node>
+				</Node>
+				<Node score="1" recordCount="35.0">
+					<True/>
+					<ScoreDistribution value="0" recordCount="0.0"/>
+					<ScoreDistribution value="1" recordCount="35.0"/>
+				</Node>
+			</Node>
+			<Node>
+				<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="13.5"/>
+				<Node>
+					<SimplePredicate field="pclass" operator="equal" value="3rd"/>
+					<Node>
+						<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="3.5"/>
+						<Node score="0" recordCount="1.0">
+							<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="0.583299994468689"/>
+							<ScoreDistribution value="0" recordCount="1.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+						<Node score="1" recordCount="3.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="0.0"/>
+							<ScoreDistribution value="1" recordCount="3.0"/>
+						</Node>
+					</Node>
+					<Node score="0" recordCount="2.0">
+						<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="7.5"/>
+						<ScoreDistribution value="0" recordCount="2.0"/>
+						<ScoreDistribution value="1" recordCount="0.0"/>
+					</Node>
+					<Node score="0" recordCount="4.0">
+						<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="10.0"/>
+						<ScoreDistribution value="0" recordCount="2.0"/>
+						<ScoreDistribution value="1" recordCount="2.0"/>
+					</Node>
+					<Node score="0" recordCount="2.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="2.0"/>
+						<ScoreDistribution value="1" recordCount="0.0"/>
+					</Node>
+				</Node>
+				<Node score="1" recordCount="9.0">
+					<True/>
+					<ScoreDistribution value="0" recordCount="0.0"/>
+					<ScoreDistribution value="1" recordCount="9.0"/>
+				</Node>
+			</Node>
+			<Node>
+				<SimplePredicate field="pclass" operator="equal" value="1st"/>
+				<Node>
+					<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="54.5"/>
+					<Node>
+						<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+						<Node>
+							<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="27.5"/>
+							<Node score="1" recordCount="1.0">
+								<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="17.5"/>
+								<ScoreDistribution value="0" recordCount="0.0"/>
+								<ScoreDistribution value="1" recordCount="1.0"/>
+							</Node>
+							<Node score="0" recordCount="2.0">
+								<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="20.0"/>
+								<ScoreDistribution value="0" recordCount="2.0"/>
+								<ScoreDistribution value="1" recordCount="0.0"/>
+							</Node>
+							<Node score="1" recordCount="1.0">
+								<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="21.5"/>
+								<ScoreDistribution value="0" recordCount="0.0"/>
+								<ScoreDistribution value="1" recordCount="1.0"/>
+							</Node>
+							<Node score="0" recordCount="1.0">
+								<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="22.5"/>
+								<ScoreDistribution value="0" recordCount="1.0"/>
+								<ScoreDistribution value="1" recordCount="0.0"/>
+							</Node>
+							<Node score="1" recordCount="1.0">
+								<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="23.5"/>
+								<ScoreDistribution value="0" recordCount="0.0"/>
+								<ScoreDistribution value="1" recordCount="1.0"/>
+							</Node>
+							<Node>
+								<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="26.0"/>
+								<Node score="0" recordCount="2.0">
+									<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="24.5"/>
+									<ScoreDistribution value="0" recordCount="1.0"/>
+									<ScoreDistribution value="1" recordCount="1.0"/>
+								</Node>
+								<Node score="1" recordCount="3.0">
+									<True/>
+									<ScoreDistribution value="0" recordCount="1.0"/>
+									<ScoreDistribution value="1" recordCount="2.0"/>
+								</Node>
+							</Node>
+							<Node score="0" recordCount="4.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="2.0"/>
+								<ScoreDistribution value="1" recordCount="2.0"/>
+							</Node>
+						</Node>
+						<Node>
+							<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="38.5"/>
+							<Node>
+								<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="33.5"/>
+								<Node>
+									<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="31.597091674804688"/>
+									<Node>
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="30.5"/>
+										<Node score="0" recordCount="3.0">
+											<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="28.5"/>
+											<ScoreDistribution value="0" recordCount="2.0"/>
+											<ScoreDistribution value="1" recordCount="1.0"/>
+										</Node>
+										<Node score="0" recordCount="5.0">
+											<True/>
+											<ScoreDistribution value="0" recordCount="5.0"/>
+											<ScoreDistribution value="1" recordCount="0.0"/>
+										</Node>
+									</Node>
+									<Node score="0" recordCount="3.0">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="31.097091674804688"/>
+										<ScoreDistribution value="0" recordCount="2.0"/>
+										<ScoreDistribution value="1" recordCount="1.0"/>
+									</Node>
+									<Node score="0" recordCount="40.0">
+										<True/>
+										<ScoreDistribution value="0" recordCount="30.0"/>
+										<ScoreDistribution value="1" recordCount="10.0"/>
+									</Node>
+								</Node>
+								<Node score="0" recordCount="2.0">
+									<True/>
+									<ScoreDistribution value="0" recordCount="2.0"/>
+									<ScoreDistribution value="1" recordCount="0.0"/>
+								</Node>
+							</Node>
+							<Node score="1" recordCount="2.0">
+								<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="35.5"/>
+								<ScoreDistribution value="0" recordCount="0.0"/>
+								<ScoreDistribution value="1" recordCount="2.0"/>
+							</Node>
+							<Node>
+								<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="37.5"/>
+								<Node score="1" recordCount="7.0">
+									<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="36.5"/>
+									<ScoreDistribution value="0" recordCount="3.0"/>
+									<ScoreDistribution value="1" recordCount="4.0"/>
+								</Node>
+								<Node score="0" recordCount="3.0">
+									<True/>
+									<ScoreDistribution value="0" recordCount="2.0"/>
+									<ScoreDistribution value="1" recordCount="1.0"/>
+								</Node>
+							</Node>
+							<Node score="1" recordCount="1.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="0.0"/>
+								<ScoreDistribution value="1" recordCount="1.0"/>
+							</Node>
+						</Node>
+						<Node score="0" recordCount="7.0">
+							<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="43.0"/>
+							<ScoreDistribution value="0" recordCount="7.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+						<Node>
+							<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="45.5"/>
+							<Node score="0" recordCount="2.0">
+								<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="44.5"/>
+								<ScoreDistribution value="0" recordCount="1.0"/>
+								<ScoreDistribution value="1" recordCount="1.0"/>
+							</Node>
+							<Node score="0" recordCount="3.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="2.0"/>
+								<ScoreDistribution value="1" recordCount="1.0"/>
+							</Node>
+						</Node>
+						<Node score="0" recordCount="5.0">
+							<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="46.5"/>
+							<ScoreDistribution value="0" recordCount="5.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+						<Node score="0" recordCount="5.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="4.0"/>
+							<ScoreDistribution value="1" recordCount="1.0"/>
+						</Node>
+					</Node>
+					<Node score="1" recordCount="2.0">
+						<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="48.5"/>
+						<ScoreDistribution value="0" recordCount="0.0"/>
+						<ScoreDistribution value="1" recordCount="2.0"/>
+					</Node>
+					<Node>
+						<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="51.5"/>
+						<Node score="1" recordCount="5.0">
+							<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="49.5"/>
+							<ScoreDistribution value="0" recordCount="2.0"/>
+							<ScoreDistribution value="1" recordCount="3.0"/>
+						</Node>
+						<Node score="0" recordCount="2.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="2.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+					</Node>
+					<Node score="1" recordCount="1.0">
+						<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="53.0"/>
+						<ScoreDistribution value="0" recordCount="0.0"/>
+						<ScoreDistribution value="1" recordCount="1.0"/>
+					</Node>
+					<Node score="1" recordCount="3.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="1.0"/>
+						<ScoreDistribution value="1" recordCount="2.0"/>
+					</Node>
+				</Node>
+				<Node score="0" recordCount="18.0">
+					<True/>
+					<ScoreDistribution value="0" recordCount="18.0"/>
+					<ScoreDistribution value="1" recordCount="0.0"/>
+				</Node>
+			</Node>
+			<Node>
+				<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="32.5"/>
+				<Node>
+					<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="22.5"/>
+					<Node>
+						<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="19.5"/>
+						<Node score="0" recordCount="15.0">
+							<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="18.5"/>
+							<ScoreDistribution value="0" recordCount="15.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+						<Node score="0" recordCount="6.0">
+							<SimplePredicate field="pclass" operator="equal" value="3rd"/>
+							<ScoreDistribution value="0" recordCount="5.0"/>
+							<ScoreDistribution value="1" recordCount="1.0"/>
+						</Node>
+						<Node score="0" recordCount="3.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="2.0"/>
+							<ScoreDistribution value="1" recordCount="1.0"/>
+						</Node>
+					</Node>
+					<Node score="0" recordCount="27.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="27.0"/>
+						<ScoreDistribution value="1" recordCount="0.0"/>
+					</Node>
+				</Node>
+				<Node>
+					<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="24.5"/>
+					<Node>
+						<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="23.5"/>
+						<Node score="0" recordCount="5.0">
+							<SimplePredicate field="pclass" operator="equal" value="3rd"/>
+							<ScoreDistribution value="0" recordCount="4.0"/>
+							<ScoreDistribution value="1" recordCount="1.0"/>
+						</Node>
+						<Node score="0" recordCount="6.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="6.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+					</Node>
+					<Node score="0" recordCount="3.0">
+						<SimplePredicate field="pclass" operator="equal" value="2nd"/>
+						<ScoreDistribution value="0" recordCount="2.0"/>
+						<ScoreDistribution value="1" recordCount="1.0"/>
+					</Node>
+					<Node score="0" recordCount="6.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="5.0"/>
+						<ScoreDistribution value="1" recordCount="1.0"/>
+					</Node>
+				</Node>
+				<Node>
+					<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="28.5"/>
+					<Node>
+						<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="26.5"/>
+						<Node>
+							<SimplePredicate field="pclass" operator="equal" value="2nd"/>
+							<Node score="0" recordCount="5.0">
+								<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="25.5"/>
+								<ScoreDistribution value="0" recordCount="5.0"/>
+								<ScoreDistribution value="1" recordCount="0.0"/>
+							</Node>
+							<Node score="0" recordCount="4.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="3.0"/>
+								<ScoreDistribution value="1" recordCount="1.0"/>
+							</Node>
+						</Node>
+						<Node score="0" recordCount="4.0">
+							<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="25.5"/>
+							<ScoreDistribution value="0" recordCount="3.0"/>
+							<ScoreDistribution value="1" recordCount="1.0"/>
+						</Node>
+						<Node score="0" recordCount="9.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="9.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+					</Node>
+					<Node score="0" recordCount="11.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="11.0"/>
+						<ScoreDistribution value="1" recordCount="0.0"/>
+					</Node>
+				</Node>
+				<Node>
+					<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="29.5"/>
+					<Node score="0" recordCount="3.0">
+						<SimplePredicate field="pclass" operator="equal" value="3rd"/>
+						<ScoreDistribution value="0" recordCount="2.0"/>
+						<ScoreDistribution value="1" recordCount="1.0"/>
+					</Node>
+					<Node score="0" recordCount="2.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="2.0"/>
+						<ScoreDistribution value="1" recordCount="0.0"/>
+					</Node>
+				</Node>
+				<Node>
+					<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="31.597091674804688"/>
+					<Node>
+						<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="31.097091674804688"/>
+						<Node>
+							<SimplePredicate field="pclass" operator="equal" value="2nd"/>
+							<Node score="0" recordCount="8.0">
+								<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="30.5"/>
+								<ScoreDistribution value="0" recordCount="7.0"/>
+								<ScoreDistribution value="1" recordCount="1.0"/>
+							</Node>
+							<Node score="0" recordCount="1.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="1.0"/>
+								<ScoreDistribution value="1" recordCount="0.0"/>
+							</Node>
+						</Node>
+						<Node score="0" recordCount="4.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="4.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+					</Node>
+					<Node score="0" recordCount="36.0">
+						<SimplePredicate field="pclass" operator="equal" value="2nd"/>
+						<ScoreDistribution value="0" recordCount="32.0"/>
+						<ScoreDistribution value="1" recordCount="4.0"/>
+					</Node>
+					<Node score="0" recordCount="279.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="248.0"/>
+						<ScoreDistribution value="1" recordCount="31.0"/>
+					</Node>
+				</Node>
+				<Node score="0" recordCount="2.0">
+					<SimplePredicate field="pclass" operator="equal" value="2nd"/>
+					<ScoreDistribution value="0" recordCount="1.0"/>
+					<ScoreDistribution value="1" recordCount="1.0"/>
+				</Node>
+				<Node score="0" recordCount="4.0">
+					<True/>
+					<ScoreDistribution value="0" recordCount="4.0"/>
+					<ScoreDistribution value="1" recordCount="0.0"/>
+				</Node>
+			</Node>
+			<Node score="0" recordCount="29.0">
+				<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="40.5"/>
+				<ScoreDistribution value="0" recordCount="29.0"/>
+				<ScoreDistribution value="1" recordCount="0.0"/>
+			</Node>
+			<Node>
+				<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="41.5"/>
+				<Node score="0" recordCount="1.0">
+					<SimplePredicate field="pclass" operator="equal" value="3rd"/>
+					<ScoreDistribution value="0" recordCount="1.0"/>
+					<ScoreDistribution value="1" recordCount="0.0"/>
+				</Node>
+				<Node score="0" recordCount="2.0">
+					<True/>
+					<ScoreDistribution value="0" recordCount="1.0"/>
+					<ScoreDistribution value="1" recordCount="1.0"/>
+				</Node>
+			</Node>
+			<Node>
+				<SimplePredicate field="pclass" operator="equal" value="3rd"/>
+				<Node score="0" recordCount="3.0">
+					<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="44.5"/>
+					<ScoreDistribution value="0" recordCount="3.0"/>
+					<ScoreDistribution value="1" recordCount="0.0"/>
+				</Node>
+				<Node score="0" recordCount="2.0">
+					<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="46.0"/>
+					<ScoreDistribution value="0" recordCount="1.0"/>
+					<ScoreDistribution value="1" recordCount="1.0"/>
+				</Node>
+				<Node score="0" recordCount="1.0">
+					<True/>
+					<ScoreDistribution value="0" recordCount="1.0"/>
+					<ScoreDistribution value="1" recordCount="0.0"/>
+				</Node>
+			</Node>
+			<Node score="0" recordCount="15.0">
+				<True/>
+				<ScoreDistribution value="0" recordCount="15.0"/>
+				<ScoreDistribution value="1" recordCount="0.0"/>
+			</Node>
+		</Node>
+	</TreeModel>
+</PMML>

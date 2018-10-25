@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PMML xmlns="http://www.dmg.org/PMML-4_3" xmlns:data="http://jpmml.org/jpmml-model/InlineTable" version="4.3">
+	<Header>
+		<Application name="JPMML-SkLearn" version="1.5.8"/>
+		<Timestamp>2018-10-24T15:53:33Z</Timestamp>
+	</Header>
+	<MiningBuildTask>
+		<Extension>PMMLPipeline(steps=[('mapper', DataFrameMapper(default=False, df_out=False,
+        features=[(['sbp'], [MinMaxScaler(copy=True, feature_range=(0, 1)), MinMaxScaler(copy=True, feature_range=(0, 1))]), (['tobacco'], MinMaxScaler(copy=True, feature_range=(0, 1))), ('ldl', None), ('adiposity', None), (['famhist'], LabelBinarizer(neg_label=0, pos_label=1, sparse_output=False)), ('typea..., inv_kw_args=None, inverse_func=None,
+          kw_args=None, pass_y='deprecated', validate=None))],
+        input_df=False, sparse=False)),
+       ('classifier', DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth=None,
+            max_features=None, max_leaf_nodes=None,
+            min_impurity_decrease=0.0, min_impurity_split=None,
+            min_samples_leaf=1, min_samples_split=2,
+            min_weight_fraction_leaf=0.0, presort=False, random_state=None,
+            splitter='best'))])</Extension>
+	</MiningBuildTask>
+	<DataDictionary>
+		<DataField name="chd" optype="categorical" dataType="integer">
+			<Value value="0"/>
+			<Value value="1"/>
+		</DataField>
+		<DataField name="typea" optype="continuous" dataType="double"/>
+		<DataField name="age" optype="continuous" dataType="double"/>
+	</DataDictionary>
+	<TransformationDictionary>
+		<DerivedField name="log(age)" optype="continuous" dataType="double">
+			<Apply function="ln">
+				<FieldRef field="age"/>
+			</Apply>
+		</DerivedField>
+		<DerivedField name="float(log(age))" optype="continuous" dataType="float">
+			<FieldRef field="log(age)"/>
+		</DerivedField>
+		<DerivedField name="double(float(log(age)))" optype="continuous" dataType="double">
+			<FieldRef field="float(log(age))"/>
+		</DerivedField>
+		<DerivedField name="float(typea)" optype="continuous" dataType="float">
+			<FieldRef field="typea"/>
+		</DerivedField>
+		<DerivedField name="double(float(typea))" optype="continuous" dataType="double">
+			<FieldRef field="float(typea)"/>
+		</DerivedField>
+	</TransformationDictionary>
+	<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+		<MiningSchema>
+			<MiningField name="chd" usageType="target"/>
+			<MiningField name="typea"/>
+			<MiningField name="age"/>
+		</MiningSchema>
+		<Output>
+			<OutputField name="probability(0)" optype="continuous" dataType="double" feature="probability" value="0"/>
+			<OutputField name="probability(1)" optype="continuous" dataType="double" feature="probability" value="1"/>
+		</Output>
+		<Node>
+			<True/>
+			<Node>
+				<SimplePredicate field="double(float(log(age)))" operator="lessOrEqual" value="3.860230803489685"/>
+				<Node score="0" recordCount="4.0">
+					<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+					<ScoreDistribution value="0" recordCount="4.0"/>
+					<ScoreDistribution value="1" recordCount="0.0"/>
+				</Node>
+				<Node score="1" recordCount="1.0">
+					<True/>
+					<ScoreDistribution value="0" recordCount="0.0"/>
+					<ScoreDistribution value="1" recordCount="1.0"/>
+				</Node>
+			</Node>
+			<Node score="1" recordCount="7.0">
+				<True/>
+				<ScoreDistribution value="0" recordCount="0.0"/>
+				<ScoreDistribution value="1" recordCount="7.0"/>
+			</Node>
+		</Node>
+	</TreeModel>
+</PMML>

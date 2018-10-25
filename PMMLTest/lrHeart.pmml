@@ -1,0 +1,1680 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PMML xmlns="http://www.dmg.org/PMML-4_3" xmlns:data="http://jpmml.org/jpmml-model/InlineTable" version="4.3">
+	<Header>
+		<Application name="JPMML-SkLearn" version="1.5.8"/>
+		<Timestamp>2018-10-25T12:01:53Z</Timestamp>
+	</Header>
+	<MiningBuildTask>
+		<Extension>PMMLPipeline(steps=[('mapper', DataFrameMapper(default=False, df_out=True,
+        features=[(['sbp'], MinMaxScaler(copy=True, feature_range=(0, 1))), (['tobacco'], MinMaxScaler(copy=True, feature_range=(0, 1))), ('ldl', None), ('adiposity', None), ('famhist', LabelBinarizer(neg_label=0, pos_label=1, sparse_output=False)), ('typea', None), ('obesity', None), ('alcohol', None), (['age'], Imputer(axis=0, copy=True, missing_values=-1, strategy='mean', verbose=0))],
+        input_df=False, sparse=False)),
+       ('classifier', GradientBoostingClassifier(criterion='friedman_mse', init=None,
+              learning_rate=0.1, loss='deviance', max_depth=3,
+              max_features=None, max_leaf_nodes=None,
+              min_impurity_decrease=0.0, min_impurity_split=None,
+              min_samples_leaf=1, min_samples_split=2,
+              min_weight_fraction_leaf=0.0, n_estimators=100,
+              n_iter_no_change=None, presort='auto', random_state=None,
+              subsample=1.0, tol=0.0001, validation_fraction=0.1,
+              verbose=0, warm_start=False))])</Extension>
+	</MiningBuildTask>
+	<DataDictionary>
+		<DataField name="chd" optype="categorical" dataType="integer">
+			<Value value="0"/>
+			<Value value="1"/>
+		</DataField>
+		<DataField name="tobacco" optype="continuous" dataType="double"/>
+		<DataField name="typea" optype="continuous" dataType="double"/>
+		<DataField name="alcohol" optype="continuous" dataType="double"/>
+		<DataField name="age" optype="continuous" dataType="double">
+			<Value value="-1" property="missing"/>
+		</DataField>
+	</DataDictionary>
+	<TransformationDictionary>
+		<DerivedField name="mix_max_scaler(tobacco)" optype="continuous" dataType="double">
+			<Apply function="*">
+				<FieldRef field="tobacco"/>
+				<Constant dataType="double">0.07092198581560284</Constant>
+			</Apply>
+		</DerivedField>
+		<DerivedField name="float(mix_max_scaler(tobacco))" optype="continuous" dataType="float">
+			<FieldRef field="mix_max_scaler(tobacco)"/>
+		</DerivedField>
+		<DerivedField name="float(typea)" optype="continuous" dataType="float">
+			<FieldRef field="typea"/>
+		</DerivedField>
+		<DerivedField name="float(alcohol)" optype="continuous" dataType="float">
+			<FieldRef field="alcohol"/>
+		</DerivedField>
+		<DerivedField name="float(age)" optype="continuous" dataType="float">
+			<FieldRef field="age"/>
+		</DerivedField>
+		<DerivedField name="double(float(age))" optype="continuous" dataType="double">
+			<FieldRef field="float(age)"/>
+		</DerivedField>
+		<DerivedField name="double(float(typea))" optype="continuous" dataType="double">
+			<FieldRef field="float(typea)"/>
+		</DerivedField>
+		<DerivedField name="double(float(alcohol))" optype="continuous" dataType="double">
+			<FieldRef field="float(alcohol)"/>
+		</DerivedField>
+		<DerivedField name="double(float(mix_max_scaler(tobacco)))" optype="continuous" dataType="double">
+			<FieldRef field="float(mix_max_scaler(tobacco))"/>
+		</DerivedField>
+	</TransformationDictionary>
+	<MiningModel functionName="classification">
+		<MiningSchema>
+			<MiningField name="chd" usageType="target"/>
+			<MiningField name="typea"/>
+			<MiningField name="age" missingValueReplacement="49.333333333333336" missingValueTreatment="asMean"/>
+			<MiningField name="tobacco"/>
+			<MiningField name="alcohol"/>
+		</MiningSchema>
+		<Segmentation multipleModelMethod="modelChain">
+			<Segment id="1">
+				<True/>
+				<MiningModel functionName="regression">
+					<MiningSchema>
+						<MiningField name="typea"/>
+						<MiningField name="age"/>
+						<MiningField name="tobacco"/>
+						<MiningField name="alcohol"/>
+					</MiningSchema>
+					<Output>
+						<OutputField name="decisionFunction(1)" optype="continuous" dataType="double" feature="predictedValue" isFinalResult="false"/>
+						<OutputField name="transformedDecisionFunction(1)" optype="continuous" dataType="double" feature="transformedValue" isFinalResult="false">
+							<Apply function="/">
+								<Constant dataType="double">1.0</Constant>
+								<Apply function="+">
+									<Constant dataType="double">1.0</Constant>
+									<Apply function="exp">
+										<Apply function="*">
+											<Constant dataType="double">-1.0</Constant>
+											<FieldRef field="decisionFunction(1)"/>
+										</Apply>
+									</Apply>
+								</Apply>
+							</Apply>
+						</OutputField>
+					</Output>
+					<Targets>
+						<Target rescaleConstant="0.6931471805599453" rescaleFactor="0.1"/>
+					</Targets>
+					<Segmentation multipleModelMethod="sum">
+						<Segment id="1">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.5000000000000002">
+									<True/>
+									<Node score="1.5">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-2.9999999999999996">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="2">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.4303539882125287">
+									<True/>
+									<Node score="-2.4816364413634355">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.430353988212529">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="3">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.3729978664301088">
+									<True/>
+									<Node score="1.372997866430109">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-2.1560205378789083">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="4">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.325145545034215">
+									<True/>
+									<Node score="-1.9318172964512441">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.3251455450342153">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="5">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.2847917918737561">
+									<True/>
+									<Node score="-1.768126959990519">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.2847917918737561">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="6">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.2504549788611234">
+									<True/>
+									<Node score="1.2504549788611232">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.6436417844188889">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="7">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.2210156871065097">
+									<True/>
+									<Node score="1.2210156871065094">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.5460869201735061">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="8">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.19561180580789">
+									<True/>
+									<Node score="1.19561180580789">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.467860168265323">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="9">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.1735682566468177">
+									<True/>
+									<Node score="-1.4039873027731402">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.173568256646818">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="10">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.1543486657236002">
+									<True/>
+									<Node score="1.1543486657236002">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.351069678640797">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="11">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.1375213585362534">
+									<True/>
+									<Node score="1.137521358536253">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.30670235528909">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="12">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.122734944079974">
+									<True/>
+									<Node score="1.122734944079974">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.2691334935395369">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="13">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.1097004653823646">
+									<True/>
+									<Node score="1.1097004653823646">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.2370554703037102">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="14">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.098178137977285">
+									<True/>
+									<Node score="1.098178137977285">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.2094716941196897">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="15">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.0879673523179378">
+									<True/>
+									<Node score="-1.185608840128645">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.0879673523179376">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="16">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.0788990363348026">
+									<True/>
+									<Node score="-1.164857351763539">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.0788990363348028">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="17">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.0708297500147494">
+									<True/>
+									<Node score="-1.1467300978414614">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.0708297500147492">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="18">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.0636370682948302">
+									<True/>
+									<Node score="-1.1308330156302964">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.0636370682948302">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="19">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.0572159341448608">
+									<True/>
+									<Node score="1.0572159341448606">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.1168438605935407">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="20">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.051475750625782">
+									<True/>
+									<Node score="1.0514757506257817">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.1044965579542507">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="21">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.0463380417629047">
+									<True/>
+									<Node score="1.0463380417629047">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0935695001075691">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="22">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.0417345555497688">
+									<True/>
+									<Node score="-1.0838766717735318">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.0417345555497688">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="23">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.0376057137523815">
+									<True/>
+									<Node score="1.0376057137523818">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0752608334697338">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="24">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.0338993360610604">
+									<True/>
+									<Node score="-1.0675882246491408">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.0338993360610602">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="25">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.030569583011729">
+									<True/>
+									<Node score="1.0305695830117287">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0607444034580797">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="26">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.0275760746718638">
+									<True/>
+									<Node score="1.0275760746718638">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0546309468049244">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="27">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.0248831515434207">
+									<True/>
+									<Node score="-1.049162808792889">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.024883151543421">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="28">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.0224592513114343">
+									<True/>
+									<Node score="1.0224592513114343">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0442661881266808">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="29">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.020276380557836">
+									<True/>
+									<Node score="1.0202763805578359">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0398767927408226">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="30">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.01830966479408">
+									<True/>
+									<Node score="1.01830966479408">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0359384171827117">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="31">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.0165369634551216">
+									<True/>
+									<Node score="1.0165369634551213">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0324017682886601">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="32">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.0149385390698578">
+									<True/>
+									<Node score="-1.0292234895137138">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.0149385390698578">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="33">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.0134967718486454">
+									<True/>
+									<Node score="1.0134967718486452">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0263653453668053">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="34">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.0121959125332436">
+									<True/>
+									<Node score="1.0121959125332436">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.023793535777599">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="35">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.0110218676334994">
+									<True/>
+									<Node score="-1.0214781165998428">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.0110218676334997">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="36">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.0099620122002186">
+									<True/>
+									<Node score="1.0099620122002186">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0193925073532877">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="37">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.0090050261098376">
+									<True/>
+									<Node score="-1.0175130710948508">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.0090050261098376">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="38">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.0081407505058075">
+									<True/>
+									<Node score="1.0081407505058075">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0158187542617103">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="39">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.007360061586556">
+									<True/>
+									<Node score="-1.0142907766447655">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.007360061586556">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="40">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.0066547593757793">
+									<True/>
+									<Node score="1.0066547593757795">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0129123634792305">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="41">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.00601746947735">
+									<True/>
+									<Node score="1.00601746947735">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0116685130914653">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="42">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.0054415561198198">
+									<True/>
+									<Node score="-1.0105457947015826">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.0054415561198198">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="43">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.0049210450465709">
+									<True/>
+									<Node score="-1.0095321719137027">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.0049210450465706">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="44">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.0044505550168288">
+									<True/>
+									<Node score="1.0044505550168288">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0086168481788726">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="45">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.004025236857738">
+									<True/>
+									<Node score="-1.0077901311271376">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.0040252368577378">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="46">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.003640719154662">
+									<True/>
+									<Node score="1.003640719154662">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.007043313164216">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="47">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.0032930597908412">
+									<True/>
+									<Node score="1.0032930597908412">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0063685661373185">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="48">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.0029787026524628">
+									<True/>
+									<Node score="1.0029787026524628">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0057588482116084">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="49">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.0026944389043742">
+									<True/>
+									<Node score="1.002694438904374">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0052078213776348">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="50">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.0024373723177253">
+									<True/>
+									<Node score="-1.0047097782417604">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.0024373723177251">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="51">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.0022048881959182">
+									<True/>
+									<Node score="1.0022048881959182">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.004259576945011">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="52">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.0019946255011418">
+									<True/>
+									<Node score="1.001994625501142">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0038525832178278">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="53">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.0018044518319404">
+									<True/>
+									<Node score="1.0018044518319404">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0034846187145963">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="54">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.0016324409439">
+									<True/>
+									<Node score="-1.003151914887011">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.0016324409439">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="55">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.0014768525416398">
+									<True/>
+									<Node score="-1.002851071753046">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.0014768525416398">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="56">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.001336114101675">
+									<True/>
+									<Node score="1.0013361141016748">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0025790210014396">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="57">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.0012088045130947">
+									<True/>
+									<Node score="1.001208804513095">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.002332992942629">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="58">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.0010936393469307">
+									<True/>
+									<Node score="-1.0021104868779656">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.0010936393469307">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="59">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.0009894575860472">
+									<True/>
+									<Node score="1.000989457586047">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.001909244511385">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="60">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.0008952096658332">
+									<True/>
+									<Node score="-1.0017272260729084">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.0008952096658332">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="61">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="alcohol"/>
+								</MiningSchema>
+								<Node score="1.000809946692177">
+									<True/>
+									<Node score="-1.0015625888624426">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="1.000809946692177">
+											<SimplePredicate field="double(float(alcohol))" operator="lessOrEqual" value="1.2450000047683716"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="62">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.0007328107175308">
+									<True/>
+									<Node score="1.0007328107175308">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0014136679563044">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="63">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.0006630259685256">
+									<True/>
+									<Node score="1.0006630259685259">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.001278958848448">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="64">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.0005998909298064">
+									<True/>
+									<Node score="1.0005998909298066">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0011571018241785">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="65">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.000542771198701">
+									<True/>
+									<Node score="1.0005427711987007">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.001046867886712">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="66">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.000491093034178">
+									<True/>
+									<Node score="1.000491093034178">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0009471460767656">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="67">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.0004443375314185">
+									<True/>
+									<Node score="1.0004443375314185">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0008569320427774">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="68">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.0004020353603285">
+									<True/>
+									<Node score="1.0004020353603282">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0007753177347112">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="69">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.0003637620125854">
+									<True/>
+									<Node score="1.0003637620125854">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0007014821079732">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="70">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="typea"/>
+								</MiningSchema>
+								<Node score="1.000329133507403">
+									<True/>
+									<Node score="1.000329133507403">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.000634682735957">
+											<SimplePredicate field="double(float(typea))" operator="lessOrEqual" value="63.5"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="71">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+									<MiningField name="tobacco"/>
+								</MiningSchema>
+								<Node score="1.0002978025111877">
+									<True/>
+									<Node score="1.0002978025111877">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+										<Node score="-1.0005742482403743">
+											<SimplePredicate field="double(float(mix_max_scaler(tobacco)))" operator="lessOrEqual" value="0.7198581546545029"/>
+										</Node>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="72">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+								</MiningSchema>
+								<Node score="1.000269454830756">
+									<True/>
+									<Node score="-0.7707833986118685">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="73">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+								</MiningSchema>
+								<Node score="1.0002438062437728">
+									<True/>
+									<Node score="-0.7375167342381129">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="74">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema>
+									<MiningField name="age"/>
+								</MiningSchema>
+								<Node score="1.0002205996336941">
+									<True/>
+									<Node score="-0.7019541395943365">
+										<SimplePredicate field="double(float(age))" operator="lessOrEqual" value="47.5"/>
+									</Node>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="75">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.019860024645415583">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="76">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.017874739858682993">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="77">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.01608779004311512">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="78">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.014479393942726269">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="79">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.013031734313004776">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="80">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.011728765333509878">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="81">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.01055603825104808">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="82">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.009500543702360998">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="83">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.008550569258289176">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="84">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.00769557081204882">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="85">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.0069260565345336455">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="86">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.006233482224429585">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="87">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.005610156963994659">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="88">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.005049158098446363">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="89">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.004544254631821164">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="90">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.004089838227166973">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="91">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.0036808610560825693">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="92">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.0033127798391227445">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="93">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.0029815054504432436">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="94">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.0026833575521861695">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="95">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.0024150237475708625">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="96">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.002173522811382759">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="97">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.0019561715926907576">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="98">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.0017605552190723634">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="99">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.0015845002790011798">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+						<Segment id="100">
+							<True/>
+							<TreeModel functionName="regression" missingValueStrategy="nullPrediction" noTrueChildStrategy="returnLastPrediction" splitCharacteristic="multiSplit">
+								<MiningSchema/>
+								<Node score="0.0014260506825695882">
+									<True/>
+								</Node>
+							</TreeModel>
+						</Segment>
+					</Segmentation>
+				</MiningModel>
+			</Segment>
+			<Segment id="2">
+				<True/>
+				<RegressionModel functionName="classification" normalizationMethod="none">
+					<MiningSchema>
+						<MiningField name="chd" usageType="target"/>
+						<MiningField name="transformedDecisionFunction(1)"/>
+					</MiningSchema>
+					<Output>
+						<OutputField name="probability(0)" optype="continuous" dataType="double" feature="probability" value="0"/>
+						<OutputField name="probability(1)" optype="continuous" dataType="double" feature="probability" value="1"/>
+					</Output>
+					<RegressionTable intercept="0.0" targetCategory="1">
+						<NumericPredictor name="transformedDecisionFunction(1)" coefficient="1.0"/>
+					</RegressionTable>
+					<RegressionTable intercept="0.0" targetCategory="0"/>
+				</RegressionModel>
+			</Segment>
+		</Segmentation>
+	</MiningModel>
+</PMML>
